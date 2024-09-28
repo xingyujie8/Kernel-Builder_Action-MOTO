@@ -28,8 +28,8 @@ jobs:
       run: |
         git clone https://github.com/EdwardLab/android_kernel_motorola_sm7325 -b lineage-21 $GITHUB_WORKSPACE/kernel_workspace --depth=1
         cd $GITHUB_WORKSPACE/kernel_workspace
-        wget https://github.com/PoXiao777/Kernel-Builder_Action/raw/main/patches/last_defconfig
-        mv last_defconfig $GITHUB_WORKSPACE/kernel_workspace/arch/arm64/configs/gki_defconfig
+        # wget https://github.com/PoXiao777/Kernel-Builder_Action/raw/main/patches/last_defconfig
+        # mv last_defconfig $GITHUB_WORKSPACE/kernel_workspace/arch/arm64/configs/gki_defconfig
 
     - name: Download Clang-aosp
       run: |
