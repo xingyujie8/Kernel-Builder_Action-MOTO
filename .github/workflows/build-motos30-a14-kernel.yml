@@ -28,8 +28,6 @@ jobs:
       run: |
         git clone https://github.com/EdwardLab/android_kernel_motorola_sm7325 -b lineage-21 $GITHUB_WORKSPACE/kernel_workspace --depth=1
         cd $GITHUB_WORKSPACE/kernel_workspace
-        # wget https://github.com/PoXiao777/Kernel-Builder_Action/raw/main/patches/last_defconfig
-        # mv last_defconfig $GITHUB_WORKSPACE/kernel_workspace/arch/arm64/configs/gki_defconfig
 
     - name: Download Clang-aosp
       run: |
@@ -53,11 +51,13 @@ jobs:
         TOOL_ARGS+=("ARCH=${ARCH}" "SUBARCH=${SUBARCH}" "HEADER_ARCH=${HEADER_ARCH}")
         CC=clang CXX=clang++ && TOOL_ARGS+=("CC=${CC}"  "CXX=${CXX}")
         LD=ld.lld AR=llvm-ar NM=llvm-nm OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump READELF=llvm-readelf OBJSIZE=llvm-size STRIP=llvm-strip && TOOL_ARGS+=("LD=${LD}" "AR=${AR}" "NM=${NM}" "OBJCOPY=${OBJCOPY}" "OBJDUMP=${OBJDUMP}" "STRIP=${STRIP}")
-        LLVM=1 LLVM_IAS=1 && TOOL_ARGS+=("LLVM=${LLVM}" "LLVM_IAS=${LLVM_IAS}")
+        LLVM=1 LLVM_IAS=0 && TOOL_ARGS+=("LLVM=${LLVM}" "LLVM_IAS=${LLVM_IAS}")
         cd ${KERNEL_DIR}
         THREAD=$(nproc --all)
         make -j"$THREAD" "${TOOL_ARGS[@]}" O=${OUT_DIR}  ${DEFCONFIG}
-        scripts/config --file ${OUT_DIR}/.config -e LTO_CLANG -d LTO_NONE -e LTO_CLANG_THIN -d CONFIG_ARM64_LSE_ATOMICS -d LTO_CLANG_FULL -e THINLTO
+        
+        scripts/config --file ${OUT_DIR}/.config -e LTO_CLANG -d LTO_NONE -e LTO_CLANG_THIN -d CONFIG_ARM64_LSE_ATOMICS -d LTO_CLANG_FULL -d CONFIG_KGDB -d CONFIG_ARM64_PAN -e THINLTO
+        
         THREAD=$(($(nproc --all) - 1))
         make -j"$THREAD" O=${OUT_DIR} "${TOOL_ARGS[@]}"
         make -j"$THREAD" O=${OUT_DIR} "${TOOL_ARGS[@]}" INSTALL_MOD_PATH="." INSTALL_MOD_STRIP=1 modules_install
